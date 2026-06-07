@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Finance">
+<meta name="theme-color" content="#08090f">
+<title>Personal Finance Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#08090f;--s1:#111219;--s2:#161820;--s3:#1c1e2a;--s4:#23263a;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --gold:#c8963c;--gold-b:#e8b55a;--gold-a:rgba(200,150,60,0.10);
+  --green:#34a87a;--green-b:#4dc994;--green-a:rgba(52,168,122,0.10);
+  --blue:#4a7fe8;--blue-b:#6b9aff;--blue-a:rgba(74,127,232,0.10);
+  --red:#c94040;--red-b:#e05a5a;--red-a:rgba(201,64,64,0.10);
+  --amber:#c97e30;
+  --t1:#f0ede6;--t2:#c8c4bc;--t3:#8c897f;--t4:#56534d;--t5:#2e2c28;
+}
+html,body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.topbar{position:sticky;top:0;z-index:100;height:52px;background:rgba(8,9,15,0.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;}
+.topbar-title{font-size:0.82rem;font-weight:600;letter-spacing:0.01em;color:var(--t1)}
+.topbar-meta{text-align:right}
+.topbar-meta-line{font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:300;color:var(--t3);letter-spacing:0.06em;line-height:1.6}
+.topbar-meta-line.hi{color:var(--t2)}
+.tabnav{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--s1);border-bottom:1px solid var(--border);padding:0 10px;}
+.tabnav::-webkit-scrollbar{display:none}
+.tn{flex-shrink:0;padding:12px 13px;font-size:0.7rem;font-weight:500;letter-spacing:0.04em;color:var(--t4);background:none;border:none;cursor:pointer;border-bottom:1.5px solid transparent;margin-bottom:-1px;transition:color 0.15s,border-color 0.15s;white-space:nowrap;}
+.tn.on{color:var(--t1);border-bottom-color:var(--gold)}
+.pg{display:none}
+.pg.on{display:block;animation:fadeUp 0.2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.wrap{padding:16px 14px 48px}
+.sec{font-family:'JetBrains Mono',monospace;font-size:0.56rem;font-weight:400;letter-spacing:0.16em;text-transform:uppercase;color:var(--t4);margin:22px 0 8px}
+.sec:first-child{margin-top:0}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px}
+.card.accent-gold{border-color:rgba(200,150,60,0.18);background:linear-gradient(145deg,rgba(200,150,60,0.06) 0%,var(--s1) 60%)}
+.card.accent-green{border-color:rgba(52,168,122,0.18);background:linear-gradient(145deg,rgba(52,168,122,0.05) 0%,var(--s1) 60%)}
+.card.accent-blue{border-color:rgba(74,127,232,0.18);background:linear-gradient(145deg,rgba(74,127,232,0.05) 0%,var(--s1) 60%)}
+.label{font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
+.hero{font-size:2rem;font-weight:300;letter-spacing:-0.03em;color:var(--t1);line-height:1}
+.hero.gold{color:var(--gold-b)}.hero.green{color:var(--green-b)}.hero.blue{color:var(--blue-b)}
+.caption{font-size:0.72rem;font-weight:400;color:var(--t2);margin-top:5px;line-height:1.5}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.mc{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:13px}
+.mc .lbl{font-family:'JetBrains Mono',monospace;font-size:0.55rem;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--t4);margin-bottom:4px}
+.mc .v{font-size:1.22rem;font-weight:300;letter-spacing:-0.02em;color:var(--t1)}
+.mc .v.gold{color:var(--gold-b)}.mc .v.green{color:var(--green-b)}.mc .v.blue{color:var(--blue-b)}.mc .v.red{color:var(--red-b)}
+.mc .s{font-size:0.68rem;color:var(--t3);margin-top:2px}
+.prog{margin:14px 0 6px}
+.prog-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.prog-hdr-l{font-size:0.72rem;color:var(--t2)}
+.prog-hdr-r{font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:500}
+.prog-track{height:4px;background:var(--t5);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width 0.7s cubic-bezier(.4,0,.2,1)}
+.prog-fill.gold{background:linear-gradient(90deg,var(--gold),var(--gold-b))}
+.prog-fill.green{background:linear-gradient(90deg,var(--green),var(--green-b))}
+.prog-fill.blue{background:linear-gradient(90deg,var(--blue),var(--blue-b))}
+.prog-foot{display:flex;justify-content:space-between;margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--t4)}
+.row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.row-l .row-title{font-size:0.82rem;font-weight:500;color:var(--t1)}
+.row-l .row-sub{font-size:0.7rem;color:var(--t3);margin-top:1px}
+.row-r{font-family:'JetBrains Mono',monospace;font-size:0.82rem;font-weight:500;flex-shrink:0;margin-left:10px}
+.row-r.gold{color:var(--gold-b)}.row-r.green{color:var(--green-b)}.row-r.red{color:var(--red-b)}.row-r.dim{color:var(--t2)}.row-r.blue{color:var(--blue-b)}
+.sw-wrap{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sw{width:38px;height:22px;background:var(--s4);border:1px solid var(--border2);border-radius:99px;cursor:pointer;position:relative;transition:background 0.18s,border-color 0.18s;flex-shrink:0}
+.sw.on{background:var(--gold);border-color:var(--gold)}
+.sw::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform 0.18s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 3px rgba(0,0,0,0.4)}
+.sw.on::after{transform:translateX(16px)}
+.irow{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
+.irow:last-child{border-bottom:none}
+.irow-l{font-size:0.82rem;font-weight:400;color:var(--t1)}
+.irow-l small{display:block;font-size:0.67rem;color:var(--t3);margin-top:1px}
+.inp{background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--t1);font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:400;padding:7px 10px;width:110px;text-align:right;outline:none;transition:border-color 0.15s}
+.inp:focus{border-color:rgba(200,150,60,0.5)}
+.srow{display:flex;align-items:center;gap:10px;margin:8px 0}
+.srow-lbl{font-size:0.68rem;color:var(--t4);flex-shrink:0;width:38px}
+.srow-val{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--gold-b);flex-shrink:0;width:58px;text-align:right}
+input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:var(--s4);border-radius:99px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--gold-b);border-radius:50%;cursor:pointer;box-shadow:0 0 6px rgba(200,150,60,0.4)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--gold-b);border-radius:50%;cursor:pointer;border:none}
+.pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:0.62rem;font-weight:600;letter-spacing:0.04em;font-family:'JetBrains Mono',monospace}
+.pill.gold{background:var(--gold-a);color:var(--gold-b);border:1px solid rgba(200,150,60,0.2)}
+.pill.green{background:var(--green-a);color:var(--green-b);border:1px solid rgba(52,168,122,0.2)}
+.pill.blue{background:var(--blue-a);color:var(--blue-b);border:1px solid rgba(74,127,232,0.2)}
+.pill.red{background:var(--red-a);color:var(--red-b);border:1px solid rgba(201,64,64,0.2)}
+.tbl-wrap{border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:10px}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--s2)}
+th{padding:9px 11px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--t4);font-weight:400;white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:8px 11px;text-align:right;border-bottom:1px solid var(--border);color:var(--t2);font-size:0.77rem;font-family:'JetBrains Mono',monospace;font-weight:300}
+td:first-child{text-align:left;color:var(--t2);font-weight:400}
+tr:last-child td{border-bottom:none}
+tr.hi-row td{background:rgba(200,150,60,0.06);color:var(--gold-b)}
+tr.hi-row td:first-child{color:var(--gold-b)}
+tr.now-row td{background:rgba(52,168,122,0.05)}
+tr.now-row td:first-child{color:var(--green-b)}
+.chart-box{position:relative;margin:16px 0 4px}
+canvas{width:100%!important}
+.div{height:1px;background:var(--border);margin:12px 0}
+.phase-bar{display:flex;height:40px;border-radius:8px;overflow:hidden;gap:1px;margin:10px 0 6px}
+.phase-seg{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;overflow:hidden;min-width:0}
+.phase-seg .ps-n{font-size:0.6rem;font-weight:600;letter-spacing:0.05em;white-space:nowrap}
+.phase-seg .ps-r{font-family:'JetBrains Mono',monospace;font-size:0.56rem;color:inherit;opacity:0.7;white-space:nowrap}
+.phase-seg.accum{background:rgba(52,168,122,0.15);color:var(--green-b)}
+.phase-seg.bridge{background:rgba(74,127,232,0.15);color:var(--blue-b)}
+.phase-seg.pension{background:rgba(200,150,60,0.15);color:var(--gold-b)}
+.note{background:var(--s2);border-left:2px solid var(--gold);border-radius:0 8px 8px 0;padding:10px 13px;font-size:0.74rem;color:var(--t2);line-height:1.6;margin:10px 0}
+.note.green{border-left-color:var(--green)}.note.blue{border-left-color:var(--blue)}.note.red{border-left-color:var(--red)}
+.stack-bar{display:flex;height:24px;border-radius:6px;overflow:hidden;gap:1px;margin:10px 0}
+.sb-seg{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.55rem;transition:flex 0.4s cubic-bezier(.4,0,.2,1);min-width:0;overflow:hidden}
+.btn{width:100%;padding:13px;background:var(--gold);color:#08090f;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:600;letter-spacing:0.04em;cursor:pointer;margin-top:10px;transition:opacity 0.15s,transform 0.1s}
+.btn:active{opacity:0.8;transform:scale(0.98)}
+.btn-sec{width:100%;padding:11px;background:transparent;color:var(--t2);border:1px solid var(--border2);border-radius:10px;font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;margin-top:8px;transition:opacity 0.15s}
+.btn-sec:active{opacity:0.6}
+.btn-danger{background:var(--red-a);color:var(--red-b);border:1px solid rgba(201,64,64,0.25)}
+.tband{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.tband:last-child{border-bottom:none}
+.tband-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tband-l{flex:1}
+.tband-name{font-size:0.8rem;font-weight:500;color:var(--t1)}
+.tband-range{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--t3);margin-top:1px}
+.tband-r{text-align:right;flex-shrink:0}
+.tband-rate{font-family:'JetBrains Mono',monospace;font-size:0.82rem;font-weight:500}
+.tband-amt{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--t4);margin-top:1px}
+.footnote{font-size:0.64rem;color:var(--t4);text-align:center;padding:6px 16px 36px;line-height:1.7}
+/* History tab */
+.hist-year{background:var(--s1);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.hist-year-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none}
+.hist-year-hdr-l{display:flex;align-items:center;gap:10px}
+.hist-yr-badge{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:500;color:var(--gold-b)}
+.hist-yr-nw{font-size:0.78rem;color:var(--t3)}
+.hist-chevron{font-size:0.7rem;color:var(--t4);transition:transform 0.2s}
+.hist-chevron.open{transform:rotate(180deg)}
+.hist-body{display:none;padding:0 16px 14px;border-top:1px solid var(--border)}
+.hist-body.open{display:block}
+.hist-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.hist-row:last-child{border-bottom:none}
+.hist-row-l{font-size:0.8rem;color:var(--t2)}
+.hist-row-r{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--t1)}
+.hist-row-r.gold{color:var(--gold-b)}.hist-row-r.green{color:var(--green-b)}.hist-row-r.blue{color:var(--blue-b)}
+.save-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-size:0.78rem;color:var(--green-b);font-family:'JetBrains Mono',monospace;z-index:999;opacity:0;transition:opacity 0.2s;pointer-events:none}
+.save-toast.show{opacity:1}
+
+.big{font-family:'DM Serif Display',serif;font-size:1.9rem;font-weight:400;letter-spacing:-0.02em;color:var(--t1);line-height:1}
+.big.gold{color:var(--gold)}.big.green{color:var(--green)}.big.purple{color:#a78bfa}
+.mini-card{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:12px}
+.mini-label{font-family:'DM Mono',monospace;font-size:0.54rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t4);margin-bottom:3px}
+.mini-val{font-size:1.18rem;font-weight:300;letter-spacing:-.02em;color:var(--t1)}
+.mini-val.gold{color:var(--gold)}.mini-val.green{color:var(--green)}.mini-val.red{color:#e05a5a}
+.mini-sub{font-size:0.67rem;color:var(--t3);margin-top:2px}
+.row-val{font-family:'DM Mono',monospace;font-size:0.82rem;font-weight:500;flex-shrink:0;margin-left:8px}
+.row-val.gold{color:var(--gold)}.row-val.green{color:var(--green)}.row-val.red{color:#e05a5a}
+.toggle{width:38px;height:22px;background:var(--s4);border:1px solid var(--border2);border-radius:99px;cursor:pointer;position:relative;transition:background .18s;flex-shrink:0}
+.toggle.on{background:var(--gold);border-color:var(--gold)}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.toggle.on::after{transform:translateX(16px)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-title">Personal Finance</span>
+  <div class="topbar-meta">
+    <div class="topbar-meta-line hi" id="tb-l1">AGE 29</div>
+    <div class="topbar-meta-line" id="tb-l2">RETIREMENT IN 7 YRS</div>
+  </div>
+</div>
+
+<div class="tabnav">
+  <button class="tn on" onclick="tab('overview',this)">Overview</button>
+  <button class="tn" onclick="tab('inputs',this)">Inputs</button>
+  <button class="tn" onclick="tab('income',this)">Income</button>
+  <button class="tn" onclick="tab('simulation',this)">Simulation</button>
+  <button class="tn" onclick="tab('projection',this)">Projection</button>
+  <button class="tn" onclick="tab('bridge',this)">Phases</button>
+  <button class="tn" onclick="tab('drawdown',this)">Drawdown</button>
+  <button class="tn" onclick="tab('events',this)">Events</button>
+  <button class="tn" onclick="tab('compare',this)">Compare</button>
+  <button class="tn" onclick="tab('history',this)">History</button>
+</div>
+
+<!-- OVERVIEW -->
+<div class="pg on" id="pg-overview"><div class="wrap">
+  <div class="card accent-gold">
+    <div class="label">Net Worth</div>
+    <div class="hero gold" id="ov-nw">—</div>
+    <div class="caption" id="ov-nw-sub">—</div>
+    <div class="prog">
+      <div class="prog-hdr"><span class="prog-hdr-l" id="ov-prog-lbl">Retirement target</span><span class="prog-hdr-r gold" id="ov-pct">—</span></div>
+      <div class="prog-track"><div class="prog-fill gold" id="ov-bar" style="width:0%"></div></div>
+      <div class="prog-foot"><span id="ov-foot-l">—</span><span id="ov-foot-r">—</span></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="mc"><div class="lbl">Retire at</div><div class="v gold" id="ov-ret-age">—</div><div class="s" id="ov-ret-yr">—</div></div>
+    <div class="mc"><div class="lbl">Years away</div><div class="v blue" id="ov-yrs">—</div><div class="s">until crossover</div></div>
+    <div class="mc"><div class="lbl">Annual saving</div><div class="v green" id="ov-saving">—</div><div class="s">all wrappers</div></div>
+    <div class="mc"><div class="lbl">Savings rate</div><div class="v green" id="ov-sr">—</div><div class="s">of take-home</div></div>
+  </div>
+  <div class="sec">Portfolio</div>
+  <div class="card">
+    <div class="row"><div class="row-l"><div class="row-title">Pension</div><div class="row-sub">Locked to age 57</div></div><div class="row-r gold" id="ov-pension">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">Stocks &amp; Shares ISA</div><div class="row-sub">VLS 80/20 · bridge wrapper</div></div><div class="row-r gold" id="ov-isa">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">GIA</div><div class="row-sub">Overflow · Bed &amp; ISA annually</div></div><div class="row-r gold" id="ov-gia">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">Cash ISA</div><div class="row-sub">Short-term / emergency</div></div><div class="row-r gold" id="ov-cash">—</div></div>
+    <div class="div"></div>
+    <div class="row" style="padding-top:0;padding-bottom:0;border:none"><div class="row-l"><div class="row-title">Investable total</div></div><div class="row-r gold" id="ov-invest">—</div></div>
+  </div>
+  <div class="sec">Property</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+      <div><div style="font-size:0.82rem;font-weight:500">Essex property</div><div style="font-size:0.7rem;color:var(--t4);margin-top:2px">Mortgage: <span id="ov-prop-mort">£700/mo</span></div></div>
+      <div style="text-align:right"><div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:500;color:var(--gold-b)" id="ov-equity">£250k</div><div style="font-size:0.62rem;color:var(--t4)">equity</div></div>
+    </div>
+    <div class="prog-track"><div class="prog-fill gold" id="ov-prop-bar" style="width:50%"></div></div>
+    <div class="prog-foot" style="margin-top:5px"><span id="ov-prop-fl">£250k equity</span><span id="ov-prop-fr">£250k mortgage</span></div>
+  </div>
+</div></div>
+
+<!-- INCOME -->
+<div class="pg" id="pg-income"><div class="wrap">
+  <div class="card accent-gold">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="label">Gross Income</div><div class="hero gold" id="it-gross">—</div><div class="caption" id="it-gross-cap">—</div></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="mc"><div class="lbl">Take-home</div><div class="v green" id="it-th">—</div><div class="s">per month</div></div>
+    <div class="mc"><div class="lbl">Effective rate</div><div class="v blue" id="it-eff">—</div><div class="s">tax + NI burden</div></div>
+    <div class="mc"><div class="lbl">Adj. net income</div><div class="v gold" id="it-ani">—</div><div class="s">post sacrifice</div></div>
+    <div class="mc"><div class="lbl">Tax saving</div><div class="v green" id="it-taxsave">—</div><div class="s">vs taking salary</div></div>
+  </div>
+  <div class="sec">Income tax (2025/26)</div>
+  <div class="card">
+    <div class="tband"><div class="tband-dot" style="background:var(--s4)"></div><div class="tband-l"><div class="tband-name">Personal Allowance</div><div class="tband-range">£0 – £12,570</div></div><div class="tband-r"><div class="tband-rate" style="color:var(--t4)">0%</div><div class="tband-amt" id="tb-pa">—</div></div></div>
+    <div class="tband"><div class="tband-dot" style="background:var(--green)"></div><div class="tband-l"><div class="tband-name">Basic rate</div><div class="tband-range">£12,571 – £50,270</div></div><div class="tband-r"><div class="tband-rate" style="color:var(--green-b)">20%</div><div class="tband-amt" id="tb-br">—</div></div></div>
+    <div class="tband"><div class="tband-dot" style="background:var(--amber)"></div><div class="tband-l"><div class="tband-name">Higher rate</div><div class="tband-range">£50,271 – £100,000</div></div><div class="tband-r"><div class="tband-rate" style="color:var(--amber)">40%</div><div class="tband-amt" id="tb-hr">—</div></div></div>
+    <div class="tband" id="tband-trap" style="display:none"><div class="tband-dot" style="background:var(--red)"></div><div class="tband-l"><div class="tband-name">PA taper (eff. 60%)</div><div class="tband-range">£100,001 – £125,140</div></div><div class="tband-r"><div class="tband-rate" style="color:var(--red-b)">60%</div><div class="tband-amt" id="tb-trap">—</div></div></div>
+    <div class="tband" id="tband-ar" style="display:none"><div class="tband-dot" style="background:var(--red)"></div><div class="tband-l"><div class="tband-name">Additional rate</div><div class="tband-range">Above £125,140</div></div><div class="tband-r"><div class="tband-rate" style="color:var(--red-b)">45%</div><div class="tband-amt" id="tb-ar">—</div></div></div>
+  </div>
+  <div class="sec">National Insurance</div>
+  <div class="card">
+    <div class="tband"><div class="tband-dot" style="background:var(--blue)"></div><div class="tband-l"><div class="tband-name">Main rate</div><div class="tband-range">£12,570 – £50,270</div></div><div class="tband-r"><div class="tband-rate" style="color:var(--blue-b)">8%</div><div class="tband-amt" id="ni-main">—</div></div></div>
+    <div class="tband"><div class="tband-dot" style="background:var(--s4)"></div><div class="tband-l"><div class="tband-name">Upper rate</div><div class="tband-range">Above £50,270</div></div><div class="tband-r"><div class="tband-rate" style="color:var(--t4)">2%</div><div class="tband-amt" id="ni-upper">—</div></div></div>
+    <div class="div"></div>
+    <div class="row" style="border:none;padding:2px 0 0"><div class="row-l"><div class="row-title">Total NI</div></div><div class="row-r red" id="ni-total">—</div></div>
+  </div>
+  <div class="sec">Salary sacrifice summary</div>
+  <div class="card">
+    <div class="row"><div class="row-l"><div class="row-title">Gross salary</div></div><div class="row-r dim" id="ss-gross">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">Bonus</div><div class="row-sub">Annual</div></div><div class="row-r gold" id="ss-bonus">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">Pension sacrifice</div><div class="row-sub">Pre-tax</div></div><div class="row-r red" id="ss-sac">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">Adjusted net income</div><div class="row-sub" id="ss-ani-note">—</div></div><div class="row-r gold" id="ss-ani">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">Income tax</div></div><div class="row-r red" id="ss-tax">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">National Insurance</div></div><div class="row-r red" id="ss-ni">—</div></div>
+    <div class="div"></div>
+    <div class="row" style="border:none;padding-bottom:0"><div class="row-l"><div class="row-title">Monthly take-home</div></div><div class="row-r green" id="ss-th">—</div></div>
+  </div>
+  <div class="note" id="it-note">—</div>
+  <div class="sec">Monthly budget</div>
+  <div class="card">
+    <div class="row"><div class="row-l"><div class="row-title">Take-home</div></div><div class="row-r green" id="bud-th">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">Mortgage</div><div class="row-sub">Monthly payment</div></div><div class="row-r red" id="bud-mort">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">Living expenses</div></div><div class="row-r red" id="bud-spend">—</div></div>
+    <div class="row"><div class="row-l"><div class="row-title">ISA contribution</div></div><div class="row-r red" id="bud-isa">—</div></div>
+    <div class="row" style="border:none"><div class="row-l"><div class="row-title">GIA contribution</div></div><div class="row-r red" id="bud-gia">—</div></div>
+    <div class="div"></div>
+    <div class="row" style="border:none;padding-bottom:0"><div class="row-l"><div class="row-title">Monthly surplus</div></div><div class="row-r" id="bud-surplus">—</div></div>
+  </div>
+</div></div>
+
+<!-- SAVINGS -->
+<div class="pg" id="pg-inputs"><div class="wrap">
+  <div class="section-title">Personal</div>
+  <div class="card">
+    <div class="irow"><div class="irow-l">Age<small>Current</small></div><input class="inp" id="st-age" type="number" value="29"></div>
+    <div class="irow"><div class="irow-l">Gross salary<small>Annual £</small></div><input class="inp" id="st-salary" type="number" value="100000"></div>
+    <div class="irow"><div class="irow-l">Annual bonus<small>Expected £</small></div><input class="inp" id="st-bonus" type="number" value="0"></div>
+    <div class="irow" style="border:none"><div class="irow-l">Monthly spend<small>Living expenses</small></div><input class="inp" id="st-spend" type="number" value="2500"></div>
+  </div>
+  <div class="section-title">Annual contributions</div>
+  <div class="card">
+    <div class="irow"><div class="irow-l">Pension (sacrifice)<small>Annual £ · pre-tax</small></div><input class="inp" id="st-pensionc" type="number" value="25000"></div>
+    <div class="irow"><div class="irow-l">S&amp;S ISA<small>Annual £ · max £20k</small></div><input class="inp" id="st-isac" type="number" value="20000"></div>
+    <div class="irow" style="border:none"><div class="irow-l">GIA<small>Annual £</small></div><input class="inp" id="st-giac" type="number" value="20000"></div>
+  </div>
+  <div class="section-title">Portfolio values</div>
+  <div class="card">
+    <div class="irow"><div class="irow-l">Pension pot<small>Current £</small></div><input class="inp" id="st-pension" type="number" value="200000"></div>
+    <div class="irow"><div class="irow-l">S&amp;S ISA<small>Current £</small></div><input class="inp" id="st-isa" type="number" value="72500"></div>
+    <div class="irow"><div class="irow-l">GIA<small>Current £</small></div><input class="inp" id="st-gia" type="number" value="2000"></div>
+    <div class="irow" style="border:none"><div class="irow-l">Cash ISA<small>Current £</small></div><input class="inp" id="st-cash" type="number" value="3000"></div>
+  </div>
+  <div class="section-title">Property</div>
+  <div class="card">
+    <div class="irow"><div class="irow-l">Equity<small>£ excl. from retirement calc</small></div><input class="inp" id="st-prop" type="number" value="250000"></div>
+    <div class="irow" style="border:none"><div class="irow-l">Mortgage payment<small>Monthly £</small></div><input class="inp" id="st-mort" type="number" value="700"></div>
+  </div>
+  <div class="section-title">Assumptions</div>
+  <div class="card">
+    <div class="irow"><div class="irow-l">Growth rate<small>Nominal annual %</small></div><input class="inp" id="st-growth" type="number" value="7" step="0.5"></div>
+    <div class="irow"><div class="irow-l">Salary growth<small>Annual %</small></div><input class="inp" id="st-salgrowth" type="number" value="3" step="0.5"></div>
+    <div class="irow" style="border:none"><div class="irow-l">Inflation<small>Annual %</small></div><input class="inp" id="st-inflation" type="number" value="2.5" step="0.5"></div>
+  </div>
+  <div class="section-title">Options</div>
+  <div class="card">
+    <div class="row"><div class="row-l"><div class="row-title">Conservative SWR (3.5%)</div><div class="row-sub">Off = 4.0%</div></div><div class="toggle on" id="sw-swr" onclick="toggleSW('swr')"></div></div>
+    <div class="row"><div class="row-l"><div class="row-title">Include property in net worth</div></div><div class="toggle on" id="sw-prop" onclick="toggleSW('prop')"></div></div>
+    <div class="row"><div class="row-l"><div class="row-title">Salary active</div><div class="row-sub">Off = sabbatical</div></div><div class="toggle on" id="sw-sal" onclick="toggleSW('sal')"></div></div>
+    <div class="row" style="border:none"><div class="row-l"><div class="row-title">Mortgage included</div><div class="row-sub">Off = paid off</div></div><div class="toggle on" id="sw-mort-t" onclick="toggleSW('mort')"></div></div>
+  </div>
+  <button class="btn" onclick="applyInputs()">Apply &amp; Recalculate</button>
+  <div class="section-title">Data</div>
+  <div class="card">
+    <div style="font-size:0.79rem;color:var(--t3);margin-bottom:11px">Saved automatically to this device.</div>
+    <button class="btn-sec btn-danger" onclick="clearAll()">Clear all data</button>
+  </div>
+</div></div>
+
+<div class="pg" id="pg-simulation"><div class="wrap">
+  <div class="card" style="background:linear-gradient(145deg,rgba(139,92,246,0.08),var(--s1));border-color:rgba(139,92,246,0.2)">
+    <div class="label">Expected Retirement</div>
+    <div class="big purple" id="sim-date">—</div>
+    <div class="caption" id="sim-cap">—</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+    <div class="mini-card" style="border-color:rgba(52,168,122,.2)"><div class="mini-label" style="color:var(--green)">Optimistic</div><div class="mini-val green" id="sim-opt-age">—</div><div class="mini-sub" id="sim-opt-yr">—</div></div>
+    <div class="mini-card" style="border-color:rgba(200,150,60,.2)"><div class="mini-label" style="color:var(--gold)">Base</div><div class="mini-val gold" id="sim-base-age">—</div><div class="mini-sub" id="sim-base-yr">—</div></div>
+    <div class="mini-card" style="border-color:rgba(224,85,85,.2)"><div class="mini-label" style="color:var(--red)">Pessimistic</div><div class="mini-val red" id="sim-pes-age">—</div><div class="mini-sub" id="sim-pes-yr">—</div></div>
+  </div>
+  <div class="note" id="sim-note" style="border-left-color:rgba(139,92,246,0.6)">—</div>
+  <div class="section-title">Portfolio chart — all scenarios</div>
+  <div class="card"><div style="position:relative;margin:8px 0"><canvas id="simChart" height="200"></canvas></div></div>
+  <div class="section-title">Sensitivity — what moves retirement most</div>
+  <div class="card" id="sim-sens">—</div>
+  <div class="section-title">Reverse calculator</div>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="flex:1;font-size:0.82rem;color:var(--t2)">Target retirement age</div>
+      <input class="inp" type="number" id="rev-age" value="36" min="30" max="65" style="width:80px">
+    </div>
+    <button class="btn" style="margin-top:0" onclick="calcReverse()">Calculate Required Contributions</button>
+    <div id="rev-result"></div>
+  </div>
+  <div class="section-title">Scenario table</div>
+  <div class="table-wrap"><table><thead><tr>
+    <th style="text-align:left">Age</th><th style="color:var(--green)">Optimistic</th><th style="color:var(--gold)">Base</th><th style="color:var(--red)">Pessimistic</th>
+  </tr></thead><tbody id="sim-tbody"></tbody></table></div>
+</div></div>
+
+<div class="pg" id="pg-drawdown"><div class="wrap">
+  <div class="note" style="margin-bottom:12px">Post-retirement simulation to age 90. ISA/GIA drawn first, pension unlocks at 57, state pension +£11,500/yr at 67.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <div class="mini-card"><div class="mini-label">Portfolio lasts to</div><div class="mini-val gold" id="dd-lasts">—</div><div class="mini-sub" id="dd-lasts-sub">—</div></div>
+    <div class="mini-card"><div class="mini-label">Age 90 remaining</div><div class="mini-val" id="dd-age90">—</div><div class="mini-sub">base projection</div></div>
+    <div class="mini-card"><div class="mini-label">State pension</div><div class="mini-val green">£11,500</div><div class="mini-sub">unlocks at 67</div></div>
+    <div class="mini-card"><div class="mini-label">25% PCLS at 57</div><div class="mini-val gold" id="dd-pcls">—</div><div class="mini-sub">tax-free lump sum</div></div>
+  </div>
+  <div class="section-title">Portfolio to age 90</div>
+  <div class="card"><div style="position:relative;margin:8px 0"><canvas id="ddChart" height="200"></canvas></div></div>
+  <div class="section-title">Year by year</div>
+  <div class="table-wrap"><table><thead><tr>
+    <th style="text-align:left">Age</th><th>Bridge</th><th>Pension</th><th>Drawn</th><th>Note</th>
+  </tr></thead><tbody id="dd-tbody"></tbody></table></div>
+</div></div>
+
+<div class="pg" id="pg-events"><div class="wrap">
+  <div class="note" style="border-left-color:rgba(139,92,246,0.6);margin-bottom:12px">Life events modify the simulation. Child costs applied month-by-month by age band to age 18.</div>
+  <div class="section-title">Add event</div>
+  <div style="background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:10px">
+    <select id="ev-type" style="background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--t1);font-family:inherit;font-size:0.82rem;padding:8px 9px;width:100%;margin-bottom:8px;outline:none">
+      <option value="oneoff">One-off cost (car, wedding, travel…)</option>
+      <option value="child">Child (planned)</option>
+      <option value="career_break">Career break / sabbatical</option>
+      <option value="salary_change">Salary change</option>
+      <option value="property">Property purchase / upgrade</option>
+    </select>
+    <div id="ev-age-wrap"><label style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:3px" id="ev-age-lbl">Your age when this happens</label>
+    <input type="number" id="ev-age" placeholder="Age" style="background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--t1);font-family:inherit;font-size:0.82rem;padding:8px 9px;width:100%;margin-bottom:8px;outline:none"></div>
+    <div id="ev-amount-wrap"><label style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:3px" id="ev-amount-lbl">Cost £</label>
+    <input type="number" id="ev-amount" placeholder="Amount £" style="background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--t1);font-family:inherit;font-size:0.82rem;padding:8px 9px;width:100%;margin-bottom:8px;outline:none"></div>
+    <div id="ev-dur-wrap" style="display:none"><label style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:3px">Duration (years)</label>
+    <input type="number" id="ev-duration" placeholder="e.g. 1" style="background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--t1);font-family:inherit;font-size:0.82rem;padding:8px 9px;width:100%;margin-bottom:8px;outline:none"></div>
+    <label style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:3px">Label (optional)</label>
+    <input type="text" id="ev-label" placeholder="e.g. Tesla, Maternity leave" style="background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--t1);font-family:inherit;font-size:0.82rem;padding:8px 9px;width:100%;margin-bottom:8px;outline:none">
+    <button class="btn" onclick="addEvent()">Add Event</button>
+  </div>
+  <div class="section-title">Scheduled events</div>
+  <div id="ev-list"><div style="text-align:center;color:var(--t3);font-size:0.79rem;padding:22px 0">No events yet.</div></div>
+  <div id="ev-impact-wrap" style="display:none">
+    <div class="section-title">Retirement date impact</div>
+    <div class="card">
+      <div class="row"><div class="row-l"><div class="row-title">Without events</div></div><div class="row-val gold" id="ev-base-ret">—</div></div>
+      <div class="row" style="border:none"><div class="row-l"><div class="row-title">With all events</div></div><div class="row-val" id="ev-event-ret">—</div></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="pg" id="pg-compare"><div class="wrap">
+  <div class="note" style="margin-bottom:12px">Compare your base plan against an alternative — different spend, salary, contributions, or with a child event.</div>
+  <div class="section-title">Alternative scenario</div>
+  <div class="card">
+    <div class="irow"><div class="irow-l">Alt. monthly spend<small>£/mo</small></div><input class="inp" id="cmp-spend" type="number" value="2500"></div>
+    <div class="irow"><div class="irow-l">Alt. contributions<small>£/yr total</small></div><input class="inp" id="cmp-contrib" type="number" value="65000"></div>
+    <div class="irow"><div class="irow-l">Alt. salary<small>£/yr</small></div><input class="inp" id="cmp-salary" type="number" value="100000"></div>
+    <div class="irow" style="border:none"><div class="irow-l">Add child at age 32<small>Age-banded cost model</small></div><div class="toggle" id="sw-cmp-child" onclick="toggleCmpChild()"></div></div>
+  </div>
+  <button class="btn" style="margin-bottom:12px" onclick="renderCompare()">Run Comparison</button>
+  <div id="cmp-output"></div>
+</div></div>
+
+<div class="pg" id="pg-projection"><div class="wrap">
+  <div class="card accent-gold">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="flex:1;min-width:0"><div class="label">Retirement target</div><div class="hero gold" id="pr-target">—</div><div class="caption" id="pr-cap">—</div></div>
+      <div style="background:var(--gold-a);border:1px solid rgba(200,150,60,0.2);border-radius:9px;padding:10px 13px;text-align:center;flex-shrink:0;margin-left:12px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:500;color:var(--gold-b);line-height:1" id="pr-yr">—</div>
+        <div style="font-size:0.58rem;color:var(--t4);margin-top:3px;letter-spacing:0.08em;font-family:'JetBrains Mono',monospace">CROSSOVER</div>
+      </div>
+    </div>
+    <div class="chart-box"><canvas id="projChart" height="210"></canvas></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px">
+      <div style="display:flex;align-items:center;gap:5px;font-size:0.66rem;color:var(--t3)"><span style="width:12px;height:2px;background:var(--gold-b);border-radius:2px;display:inline-block"></span>Portfolio</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:0.66rem;color:var(--t3)"><span style="width:12px;height:2px;background:var(--green-b);border-radius:2px;display:inline-block"></span>3.5% SWR</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:0.66rem;color:var(--t3)"><span style="width:12px;height:2px;background:var(--blue-b);border-radius:2px;display:inline-block;opacity:0.7"></span>4.0% SWR</div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="mc"><div class="lbl">3.5% SWR</div><div class="v gold" id="pr-t35">—</div><div class="s" id="pr-a35">—</div></div>
+    <div class="mc"><div class="lbl">4.0% SWR</div><div class="v blue" id="pr-t40">—</div><div class="s" id="pr-a40">—</div></div>
+  </div>
+  <div class="sec">Year by year</div>
+  <div class="tbl-wrap"><table><thead><tr><th style="text-align:left">Age</th><th>Pension</th><th>Bridge</th><th>Total</th><th></th></tr></thead><tbody id="proj-tbody"></tbody></table></div>
+</div></div>
+
+<!-- PHASES -->
+<div class="pg" id="pg-bridge"><div class="wrap">
+  <div class="sec" style="margin-top:0">Retirement phases</div>
+  <div class="card">
+    <div class="phase-bar" id="phase-bar"></div>
+    <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--t4)" id="phase-labels"></div>
+    <div class="g2" style="margin-top:12px;margin-bottom:0">
+      <div style="background:var(--blue-a);border:1px solid rgba(74,127,232,0.15);border-radius:9px;padding:12px"><div class="lbl" style="color:var(--blue-b)">Bridge needed</div><div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:500;color:var(--blue-b)" id="bp-needed">—</div><div style="font-size:0.68rem;color:var(--t4);margin-top:2px" id="bp-needed-sub">—</div></div>
+      <div style="background:var(--gold-a);border:1px solid rgba(200,150,60,0.15);border-radius:9px;padding:12px"><div class="lbl" style="color:var(--gold-b)">Pension at 57</div><div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:500;color:var(--gold-b)" id="bp-p57">—</div><div style="font-size:0.68rem;color:var(--t4);margin-top:2px" id="bp-p57-sub">—</div></div>
+    </div>
+  </div>
+  <div class="sec">Bridge pot — ISA + GIA</div>
+  <div class="card accent-blue">
+    <div class="label">Bridge pot at retirement</div>
+    <div class="hero blue" id="br-val">—</div>
+    <div class="caption" id="br-cap">—</div>
+    <div class="prog" style="margin-top:14px">
+      <div class="prog-hdr"><span class="prog-hdr-l">Adequacy vs requirement</span><span class="prog-hdr-r blue" id="br-pct">—</span></div>
+      <div class="prog-track"><div class="prog-fill blue" id="br-bar" style="width:0%"></div></div>
+      <div class="prog-foot"><span id="br-fl">—</span><span id="br-fr">—</span></div>
+    </div>
+    <div class="chart-box" style="margin-top:16px"><canvas id="bridgeChart" height="170"></canvas></div>
+    <div class="note blue" id="br-note" style="margin-top:10px">—</div>
+  </div>
+  <div class="sec">Pension — locked to 57</div>
+  <div class="card accent-gold">
+    <div class="label">Pension at retirement</div>
+    <div class="hero gold" id="pen-val">—</div>
+    <div class="caption" id="pen-cap">—</div>
+    <div class="chart-box" style="margin-top:16px"><canvas id="pensionChart" height="160"></canvas></div>
+    <div class="g2" style="margin-top:12px;margin-bottom:0">
+      <div style="background:var(--s2);border-radius:9px;padding:12px"><div class="lbl">At retirement</div><div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:500;color:var(--gold-b)" id="pen-atfire">—</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:12px"><div class="lbl">At age 57</div><div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:500;color:var(--gold-b)" id="pen-at57">—</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:12px"><div class="lbl">SWR income</div><div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:500;color:var(--green-b)" id="pen-income">—</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:12px"><div class="lbl">25% PCLS</div><div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:500;color:var(--gold-b)" id="pen-pcls">—</div></div>
+    </div>
+  </div>
+  <div class="sec">Drawdown table (retirement → 57)</div>
+  <div class="tbl-wrap"><table><thead><tr><th style="text-align:left">Age</th><th>Bridge</th><th>Pension</th><th>Drawn</th><th></th></tr></thead><tbody id="bridge-tbody"></tbody></table></div>
+</div></div>
+
+<!-- HISTORY -->
+<div class="pg" id="pg-history"><div class="wrap">
+  <div class="sec" style="margin-top:0">Year-on-year record</div>
+  <div class="note" style="margin-bottom:14px">Snapshot your current figures each year to build a personal financial history. Each entry records salary, bonus, contributions, and portfolio values.</div>
+  <button class="btn" onclick="saveSnapshot()">+ Save This Year's Snapshot</button>
+  <div style="margin-top:18px" id="hist-list"><div style="text-align:center;color:var(--t4);font-size:0.8rem;padding:32px 0">No snapshots yet — save your first one above.</div></div>
+</div></div>
+
+<!-- SETTINGS -->
+<div class="footnote">Projections are illustrative — not financial advice · Updated June 2026</div>
+<div class="save-toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ══════ DEFAULTS ══════
+const DEFAULTS = {
+  age:29,salary:100000,bonus:0,spend:2500,
+  pension:200000,isa:72500,gia:2000,cash:3000,
+  growth:0.07,inflation:0.025,property:250000,mortgage:700,
+  pensionC:25000,isaC:20000,giaC:20000,
+  swr:true,includeProp:true,salaryOn:true,mortOn:true,
+};
+
+// ══════ LOCALSTORAGE ══════
+function lsGet(key,fallback){try{const v=localStorage.getItem(key);return v!==null?JSON.parse(v):fallback;}catch(e){return fallback;}}
+function lsSet(key,val){try{localStorage.setItem(key,JSON.stringify(val));}catch(e){}}
+
+function loadState(){
+  const saved=lsGet('pf_state',null);
+  return saved ? Object.assign({},DEFAULTS,saved) : Object.assign({},DEFAULTS);
+}
+function saveState(){
+  lsSet('pf_state',{
+    age:S.age,salary:S.salary,bonus:S.bonus,spend:S.spend,
+    pension:S.pension,isa:S.isa,gia:S.gia,cash:S.cash,
+    growth:S.growth,inflation:S.inflation,property:S.property,mortgage:S.mortgage,
+    pensionC:S.pensionC,isaC:S.isaC,giaC:S.giaC,
+    swr:S.swr,includeProp:S.includeProp,salaryOn:S.salaryOn,mortOn:S.mortOn,
+  });
+}
+
+// ══════ STATE ══════
+let S = loadState();
+let curTab='overview';
+let charts={};
+
+// ══════ HELPERS ══════
+const el=id=>document.getElementById(id);
+const set=(id,v)=>{const e=el(id);if(e)e.textContent=v;};
+const f=(n,compact=false)=>{
+  const abs=Math.abs(n);
+  if(compact){
+    if(abs>=1e6)return(n<0?'-':'')+'£'+(abs/1e6).toFixed(2).replace(/\.?0+$/,'')+'m';
+    if(abs>=1e3)return(n<0?'-':'')+'£'+Math.round(abs/1e3)+'k';
+    return(n<0?'-':'')+'£'+Math.round(abs);
+  }
+  return(n<0?'-':'')+'£'+Math.round(abs).toLocaleString('en-GB');
+};
+
+function toast(msg){
+  const t=el('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function clearAll(){
+  if(!confirm('Clear all saved data including history? This cannot be undone.'))return;
+  localStorage.removeItem('pf_state');
+  localStorage.removeItem('pf_history');
+  S=Object.assign({},DEFAULTS);
+  syncSettingsUI();
+  renderAll();
+  renderHistory();
+  toast('All data cleared');
+}
+
+// ══════ TAX CALC ══════
+function calcTax(gross,pensionSac){
+  if(!S.salaryOn)return{ani:0,income_tax:0,tax_br:0,tax_hr:0,tax_ar:0,ni:0,ni_main:0,ni_upper:0,takehome_m:0,takehome_annual:0,eff:0,pa:12570};
+  const ani=Math.max(0,gross-pensionSac);
+  let pa=12570;
+  if(ani>125140)pa=0;
+  else if(ani>100000)pa=Math.max(0,12570-Math.floor((ani-100000)/2));
+  const taxable=Math.max(0,ani-pa);
+  const BRcap=50270-pa;const HRcap=125140-pa;
+  let tax_br=0,tax_hr=0,tax_ar=0;
+  if(taxable>0)tax_br=Math.min(taxable,Math.max(0,BRcap))*0.20;
+  if(taxable>BRcap)tax_hr=Math.min(taxable-BRcap,Math.max(0,HRcap-BRcap))*0.40;
+  if(taxable>HRcap)tax_ar=(taxable-HRcap)*0.45;
+  const income_tax=tax_br+tax_hr+tax_ar;
+  const ni_lower=12570,ni_upper_t=50270;
+  const ni_main=Math.max(0,Math.min(ani,ni_upper_t)-ni_lower)*0.08;
+  const ni_upper=Math.max(0,ani-ni_upper_t)*0.02;
+  const ni=ni_main+ni_upper;
+  const takehome_annual=ani-income_tax-ni;
+  const takehome_m=takehome_annual/12;
+  const eff=gross>0?(income_tax+ni)/gross:0;
+  return{ani,pa,taxable,income_tax,tax_br,tax_hr,tax_ar,ni,ni_main,ni_upper,takehome_annual,takehome_m,eff};
+}
+
+// ══════ PROJECTION ══════
+function proj(){
+  const{age,growth,spend,pension,isa,gia,cash,pensionC,isaC,giaC,swr}=S;
+  const annualSpend=spend*12;
+  const t35=annualSpend/0.035,t40=annualSpend/0.04;
+  const target=swr?t35:t40;
+  let pP=pension,pB=isa+gia+cash;
+  let fa35=null,fa40=null;
+  const rows=[];
+  for(let y=0;y<=40;y++){
+    const curAge=age+y;
+    pP=pP*(1+growth)+(S.salaryOn?pensionC:0);
+    pB=pB*(1+growth)+(S.salaryOn?(isaC+giaC):0);
+    const total=pP+pB;
+    if(!fa35&&total>=t35)fa35=curAge;
+    if(!fa40&&total>=t40)fa40=curAge;
+    rows.push({age:curAge,yr:new Date().getFullYear()+y,pension:Math.round(pP),bridge:Math.round(pB),total:Math.round(total)});
+    if(curAge>=age+40)break;
+  }
+  fa35=fa35||age+40;fa40=fa40||age+40;
+  const fireAge=swr?fa35:fa40;
+  return{rows,t35,t40,target,fireAge,fa35,fa40,annualSpend};
+}
+
+function bridgeCalc(){
+  const p=proj();
+  const{fireAge,rows}=p;
+  const annualSpend=S.spend*12;
+  const bridgeYrs=Math.max(0,57-fireAge);
+  const fireRow=rows.find(r=>r.age===fireAge)||rows[rows.length-1];
+  let bridge=fireRow.bridge;
+  const bRows=[];
+  for(let y=0;y<bridgeYrs;y++){
+    const start=bridge;
+    bridge=bridge*(1+S.growth)-annualSpend;
+    bRows.push({age:fireAge+y,start:Math.round(start),end:Math.round(bridge),drawn:Math.round(annualSpend)});
+  }
+  let p57=fireRow.pension;
+  for(let y=0;y<bridgeYrs;y++)p57*=(1+S.growth);
+  let bridgeNeeded=0;
+  for(let y=0;y<bridgeYrs;y++)bridgeNeeded+=annualSpend/Math.pow(1+S.growth,y);
+  const swrRate=S.swr?0.035:0.04;
+  return{fireAge,bridgeYrs,bridgeAtFire:fireRow.bridge,pensionAtFire:Math.round(fireRow.pension),p57:Math.round(p57),bridgeNeeded:Math.round(bridgeNeeded),p57Income:Math.round(p57*swrRate),p57PCLS:Math.round(p57*0.25),bRows};
+}
+
+// ══════ CHART SETUP ══════
+Chart.defaults.color='#8c897f';
+Chart.defaults.font.family="'JetBrains Mono', monospace";
+Chart.defaults.font.size=10;
+const CTX={responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},ticks:{maxTicksLimit:8,color:'#c8c4bc'}},y:{grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},ticks:{callback:v=>f(v,true),color:'#c8c4bc'}}}};
+const TT={backgroundColor:'rgba(13,14,22,0.97)',borderColor:'rgba(255,255,255,0.07)',borderWidth:1,padding:10,titleColor:'#c8c4bc',bodyColor:'#f0ede6',titleFont:{size:10},bodyFont:{family:"'JetBrains Mono'",size:11}};
+function mkChart(id,type,data,opts){
+  if(charts[id]){charts[id].destroy();delete charts[id];}
+  const ctx=el(id);if(!ctx)return;
+  charts[id]=new Chart(ctx.getContext('2d'),{type,data,options:{...CTX,...opts}});
+}
+
+// ══════ RENDERERS ══════
+function renderOverview(){
+  const{pension,isa,gia,cash,property,age,swr,includeProp}=S;
+  const liquid=isa+gia+cash,invest=pension+liquid;
+  const nw=invest+(includeProp?property:0);
+  const p=proj();
+  const prog=Math.min(100,Math.round((invest/p.target)*100));
+  const tax=calcTax(S.salary,S.pensionC);
+  const annualC=S.salaryOn?S.pensionC+S.isaC+S.giaC:0;
+  const sr=tax.takehome_annual>0?Math.round((annualC/tax.takehome_annual)*100):0;
+  set('ov-nw',f(nw,true));
+  set('ov-nw-sub',f(invest,true)+' investable · '+f(property,true)+' property equity');
+  set('ov-prog-lbl','Retirement target '+(swr?'(3.5% SWR)':'(4.0% SWR)'));
+  set('ov-pct',prog+'%');el('ov-bar').style.width=prog+'%';
+  set('ov-foot-l',f(invest,true)+' today');set('ov-foot-r',f(p.target,true)+' target');
+  set('ov-ret-age',p.fireAge);set('ov-ret-yr','Year '+(new Date().getFullYear()+(p.fireAge-age)));
+  set('ov-yrs',p.fireAge-age);
+  set('ov-saving',f(annualC,true));set('ov-sr',sr+'%');
+  set('ov-pension',f(pension,true));set('ov-isa',f(isa,true));set('ov-gia',f(gia,true));set('ov-cash',f(cash,true));set('ov-invest',f(invest,true));
+  set('ov-equity',f(property,true));set('ov-prop-mort','£'+S.mortgage+'/mo');
+  el('ov-prop-bar').style.width=Math.round((property/(property+250000))*100)+'%';
+  set('ov-prop-fl',f(property,true)+' equity');set('ov-prop-fr','£250k mortgage');
+  set('tb-l1','AGE '+age);set('tb-l2','RETIREMENT IN '+(p.fireAge-age)+' YRS');
+}
+
+function renderIncome(){
+  const grossTotal=S.salary+S.bonus;
+  const tax=calcTax(grossTotal,S.pensionC);
+  const{ani,pa,income_tax,tax_br,tax_hr,tax_ar,ni,ni_main,ni_upper,takehome_m,eff}=tax;
+  const salOn=S.salaryOn;
+  set('it-gross',salOn?f(grossTotal):('£0'));
+  set('it-gross-cap',salOn?'Base: '+f(S.salary,true)+(S.bonus>0?' · Bonus: '+f(S.bonus,true):'')+' · Sacrifice: '+f(S.pensionC,true):'Salary toggled off');
+  set('it-th',salOn?f(takehome_m,true)+'/mo':'—');
+  set('it-eff',salOn?Math.round(eff*100)+'%':'—');
+  set('it-ani',salOn?f(ani):'—');
+  const taxSaving=S.pensionC*(grossTotal>50270?0.40:0.20);
+  set('it-taxsave',salOn?f(taxSaving,true)+'/yr':'—');
+  set('tb-pa',pa>0?f(Math.min(ani,12570),true)+' @ 0%':'Tapered to £0');
+  set('tb-br',tax_br>0?'−'+f(tax_br,true):'£0');
+  set('tb-hr',tax_hr>0?'−'+f(tax_hr,true):'£0');
+  const showTrap=ani>100000&&ani<=125140,showAR=ani>125140;
+  el('tband-trap').style.display=showTrap?'':'none';
+  el('tband-ar').style.display=showAR?'':'none';
+  if(showTrap)set('tb-trap','−'+f((ani-100000)/2*0.40,true));
+  if(showAR)set('tb-ar','−'+f(tax_ar,true));
+  set('ni-main','−'+f(ni_main,true));set('ni-upper','−'+f(ni_upper,true));set('ni-total','−'+f(ni,true));
+  set('ss-gross',f(S.salary));
+  set('ss-bonus',S.bonus>0?'+'+f(S.bonus,true):'£0');
+  set('ss-sac','−'+f(S.pensionC));
+  set('ss-ani',f(ani));
+  const aniOk=ani<=100000,aniWarn=ani>100000&&ani<=125140;
+  set('ss-ani-note',aniOk?'✓ Below £100k — personal allowance retained':aniWarn?'⚠ PA taper zone — effective 60% marginal rate':'⚠ Above £125,140 — PA fully withdrawn');
+  set('ss-tax','−'+f(income_tax));set('ss-ni','−'+f(ni));set('ss-th',f(takehome_m,true)+'/mo');
+  const noteEl=el('it-note');
+  if(!salOn){noteEl.textContent='Salary toggled off.';noteEl.className='note red';}
+  else if(aniOk){noteEl.textContent=`Sacrifice of ${f(S.pensionC,true)}/yr keeps ANI at ${f(ani)} — personal allowance intact. Tax saving: ~${f(taxSaving,true)}/yr.`;noteEl.className='note';}
+  else if(aniWarn){noteEl.textContent=`ANI ${f(ani)} is in the PA taper zone (£100k–£125,140). Effective marginal rate is 60%. Sacrifice ${f(ani-100000,true)} more to restore full personal allowance.`;noteEl.className='note red';}
+  else{noteEl.textContent=`ANI ${f(ani)} — personal allowance fully tapered. 45% additional rate applies above £125,140.`;noteEl.className='note red';}
+  const mortAmt=S.mortOn?S.mortgage:0;
+  const surplus=takehome_m-mortAmt-S.spend-(S.isaC+S.giaC)/12;
+  set('bud-th',f(takehome_m,true)+'/mo');
+  set('bud-mort',S.mortOn?'−£'+S.mortgage+'/mo':'£0');
+  el('bud-mort').className='row-r '+(S.mortOn?'red':'dim');
+  set('bud-spend','−'+f(S.spend,true)+'/mo');
+  set('bud-isa','−'+f(S.isaC/12,true)+'/mo');
+  set('bud-gia','−'+f(S.giaC/12,true)+'/mo');
+  set('bud-surplus',(surplus>=0?'+':'')+f(surplus,true)+'/mo');
+  el('bud-surplus').className='row-r '+(surplus>=0?'green':'red');
+}
+
+function renderContribs(){}
+function renderProjection(){
+  const p=proj();
+  const{rows,t35,t40,target,fireAge,fa35,fa40,annualSpend}=p;
+  const swrLabel=S.swr?'3.5%':'4.0%';
+  const curYear=new Date().getFullYear();
+  set('pr-target',f(target));
+  set('pr-cap',swrLabel+' SWR · £'+Math.round(annualSpend/1000)+'k/yr · age '+fireAge+' crossover');
+  set('pr-yr',curYear+(fireAge-S.age));
+  set('pr-t35',f(t35,true));set('pr-a35','Age '+fa35+' · '+(curYear+fa35-S.age));
+  set('pr-t40',f(t40,true));set('pr-a40','Age '+fa40+' · '+(curYear+fa40-S.age));
+  const tbody=el('proj-tbody');tbody.innerHTML='';
+  rows.slice(0,22).forEach(r=>{
+    const isFire=r.age===fireAge,isNow=r.age===S.age;
+    const tr=document.createElement('tr');
+    tr.className=isFire?'hi-row':isNow?'now-row':'';
+    tr.innerHTML=`<td>${r.age}<br><span style="font-size:0.58rem;color:var(--t5)">${r.yr}</span></td><td>${f(r.pension,true)}</td><td>${f(r.bridge,true)}</td><td>${f(r.total,true)}</td><td>${isFire?'<span class="pill gold">Target</span>':isNow?'<span class="pill green">Now</span>':r.total>=target?'<span class="pill green">✓</span>':''}</td>`;
+    tbody.appendChild(tr);
+  });
+  const labels=rows.slice(0,22).map(r=>r.age);
+  mkChart('projChart','line',{labels,datasets:[
+    {data:rows.slice(0,22).map(r=>r.total),borderColor:'#e8b55a',backgroundColor:'rgba(200,150,60,0.07)',fill:true,tension:0.4,borderWidth:2,pointRadius:0,pointHoverRadius:4},
+    {data:rows.slice(0,22).map(()=>t35),borderColor:'#4dc994',borderWidth:1.5,pointRadius:0,fill:false,tension:0},
+    {data:rows.slice(0,22).map(()=>t40),borderColor:'#6b9aff',borderDash:[4,3],borderWidth:1.5,pointRadius:0,fill:false,tension:0},
+  ]},{interaction:{intersect:false,mode:'index'},plugins:{...CTX.plugins,tooltip:{...TT,callbacks:{title:i=>'Age '+i[0].label,label:i=>['Portfolio','3.5% SWR','4.0% SWR'][i.datasetIndex]+': '+f(i.raw,true)}}}});
+}
+
+function renderBridge(){
+  const b=bridgeCalc();
+  const{fireAge,bridgeYrs,bridgeAtFire,pensionAtFire,p57,bridgeNeeded,p57Income,p57PCLS,bRows}=b;
+  el('phase-bar').innerHTML=`<div class="phase-seg accum" style="flex:${fireAge-S.age}"><span class="ps-n">Accumulate</span><span class="ps-r">${S.age}–${fireAge}</span></div><div class="phase-seg bridge" style="flex:${bridgeYrs}"><span class="ps-n">Bridge</span><span class="ps-r">${fireAge}–57</span></div><div class="phase-seg pension" style="flex:${Math.max(5,57-55)}"><span class="ps-n">Pension</span><span class="ps-r">57+</span></div>`;
+  el('phase-labels').innerHTML=`<span>${S.age}</span><span>${fireAge}</span><span>57</span>`;
+  set('bp-needed',f(bridgeNeeded,true));set('bp-needed-sub',bridgeYrs+' yrs of '+f(S.spend*12,true)+'/yr');
+  set('bp-p57',f(p57,true));set('bp-p57-sub','Grows untouched '+fireAge+'→57');
+  set('br-val',f(bridgeAtFire,true));set('br-cap','ISA + GIA at retirement (age '+fireAge+')');
+  const bpct=Math.min(100,Math.round((bridgeAtFire/bridgeNeeded)*100));
+  set('br-pct',bpct+'%');el('br-bar').style.width=bpct+'%';
+  set('br-fl',f(bridgeAtFire,true)+' available');set('br-fr',f(bridgeNeeded,true)+' required');
+  el('br-note').textContent=bridgeAtFire>=bridgeNeeded?`✓ Bridge surplus of ${f(bridgeAtFire-bridgeNeeded,true)} — adequately funded to age 57.`:`⚠ Shortfall of ${f(bridgeNeeded-bridgeAtFire,true)} — increase ISA/GIA contributions.`;
+  el('br-note').className='note '+(bridgeAtFire>=bridgeNeeded?'green':'red');
+  set('pen-val',f(pensionAtFire,true));set('pen-cap','Locked until age 57 — grows to '+f(p57,true)+' untouched');
+  set('pen-atfire',f(pensionAtFire,true));set('pen-at57',f(p57,true));
+  set('pen-income',f(p57Income,true)+'/yr');set('pen-pcls',f(p57PCLS,true));
+  const tbody=el('bridge-tbody');tbody.innerHTML='';
+  bRows.forEach((r,i)=>{
+    const tr=document.createElement('tr');tr.className=i===0?'now-row':'';
+    const pVal=Math.round(pensionAtFire*Math.pow(1+S.growth,i+1));
+    tr.innerHTML=`<td>${r.age}<br><span style="font-size:0.58rem;color:var(--t5)">${new Date().getFullYear()+(r.age-S.age)}</span></td><td style="color:${r.end<0?'var(--red-b)':'inherit'}">${f(r.end,true)}</td><td style="color:var(--gold-b)">${f(pVal,true)}</td><td style="color:var(--red-b)">−${f(r.drawn,true)}</td><td>${i===0?'<span class="pill blue">FIRE</span>':i===bRows.length-1?'<span class="pill gold">→57</span>':''}</td>`;
+    tbody.appendChild(tr);
+  });
+  mkChart('bridgeChart','line',{labels:bRows.map(r=>r.age),datasets:[
+    {label:'Bridge pot',data:bRows.map(r=>r.end),borderColor:'#6b9aff',backgroundColor:'rgba(74,127,232,0.07)',fill:true,tension:0.3,borderWidth:2,pointRadius:0,pointHoverRadius:4},
+    {label:'Pension (locked)',data:bRows.map((_,i)=>Math.round(pensionAtFire*Math.pow(1+S.growth,i+1))),borderColor:'#e8b55a',borderDash:[4,3],borderWidth:1.5,pointRadius:0,fill:false,tension:0.3},
+  ]},{interaction:{intersect:false,mode:'index'},plugins:{...CTX.plugins,legend:{display:true,labels:{color:'#c8c4bc',font:{size:10,family:"'JetBrains Mono'"},boxWidth:10,boxHeight:2,padding:12}},tooltip:{...TT,callbacks:{title:i=>'Age '+i[0].label,label:i=>i.dataset.label+': '+f(i.raw,true)}}}});
+  const penLabels=[],penVals=[];
+  let pv=pensionAtFire;
+  for(let y=0;y<=bridgeYrs;y++){penLabels.push(fireAge+y);penVals.push(Math.round(pv));pv*=(1+S.growth);}
+  mkChart('pensionChart','bar',{labels:penLabels,datasets:[{data:penVals,backgroundColor:penVals.map((_,i)=>i===penVals.length-1?'rgba(200,150,60,0.5)':'rgba(200,150,60,0.18)'),borderColor:'#e8b55a',borderWidth:1,borderRadius:3}]},{plugins:{...CTX.plugins,tooltip:{...TT,callbacks:{title:i=>'Age '+i[0].label,label:i=>'Pension: '+f(i.raw,true)}}}});
+}
+
+// ══════ HISTORY ══════
+function loadHistory(){return lsGet('pf_history',[]);}
+function saveHistory(h){lsSet('pf_history',h);}
+
+function saveSnapshot(){
+  const year=new Date().getFullYear();
+  const history=loadHistory();
+  const existing=history.findIndex(h=>h.year===year);
+  const tax=calcTax(S.salary+S.bonus,S.pensionC);
+  const invest=S.pension+S.isa+S.gia+S.cash;
+  const nw=invest+(S.includeProp?S.property:0);
+  const snap={
+    year,
+    age:S.age,
+    salary:S.salary,
+    bonus:S.bonus,
+    pensionC:S.pensionC,isaC:S.isaC,giaC:S.giaC,
+    pension:S.pension,isa:S.isa,gia:S.gia,cash:S.cash,
+    property:S.property,
+    invest,nw,
+    takehome_m:Math.round(tax.takehome_m),
+    savedAt:new Date().toISOString(),
+  };
+  if(existing>=0){
+    if(!confirm('A snapshot for '+year+' already exists. Overwrite it?'))return;
+    history[existing]=snap;
+  } else {
+    history.unshift(snap);
+  }
+  saveHistory(history);
+  renderHistory();
+  toast('Snapshot saved for '+year);
+}
+
+function deleteSnapshot(year){
+  if(!confirm('Delete snapshot for '+year+'?'))return;
+  const history=loadHistory().filter(h=>h.year!==year);
+  saveHistory(history);
+  renderHistory();
+  toast('Snapshot for '+year+' deleted');
+}
+
+function toggleHistYear(year){
+  const body=el('hist-body-'+year);
+  const chev=el('hist-chev-'+year);
+  if(!body)return;
+  body.classList.toggle('open');
+  if(chev)chev.classList.toggle('open');
+}
+
+function renderHistory(){
+  const history=loadHistory();
+  const container=el('hist-list');
+  if(!history.length){
+    container.innerHTML='<div style="text-align:center;color:var(--t4);font-size:0.8rem;padding:32px 0">No snapshots yet — save your first one above.</div>';
+    return;
+  }
+  container.innerHTML=history.map(h=>{
+    const totalC=h.pensionC+h.isaC+h.giaC;
+    const dateStr=h.savedAt?new Date(h.savedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'';
+    return `<div class="hist-year">
+      <div class="hist-year-hdr" onclick="toggleHistYear(${h.year})">
+        <div class="hist-year-hdr-l">
+          <span class="hist-yr-badge">${h.year}</span>
+          <span class="hist-yr-nw">Net worth ${f(h.nw,true)} · Age ${h.age}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:0.62rem;color:var(--t4)">${dateStr}</span>
+          <span class="hist-chevron" id="hist-chev-${h.year}">▼</span>
+        </div>
+      </div>
+      <div class="hist-body" id="hist-body-${h.year}">
+        <div class="hist-row"><span class="hist-row-l">Base salary</span><span class="hist-row-r gold">${f(h.salary,true)}</span></div>
+        ${h.bonus>0?`<div class="hist-row"><span class="hist-row-l">Bonus</span><span class="hist-row-r gold">${f(h.bonus,true)}</span></div>`:''}
+        <div class="hist-row"><span class="hist-row-l">Monthly take-home</span><span class="hist-row-r green">${f(h.takehome_m,true)}/mo</span></div>
+        <div class="hist-row"><span class="hist-row-l">Total contributions</span><span class="hist-row-r">${f(totalC,true)}/yr</span></div>
+        <div class="hist-row"><span class="hist-row-l">Pension contribution</span><span class="hist-row-r">${f(h.pensionC,true)}</span></div>
+        <div class="hist-row"><span class="hist-row-l">ISA contribution</span><span class="hist-row-r">${f(h.isaC,true)}</span></div>
+        <div class="hist-row"><span class="hist-row-l">GIA contribution</span><span class="hist-row-r">${f(h.giaC,true)}</span></div>
+        <div class="hist-row"><span class="hist-row-l">Pension pot</span><span class="hist-row-r gold">${f(h.pension,true)}</span></div>
+        <div class="hist-row"><span class="hist-row-l">ISA</span><span class="hist-row-r gold">${f(h.isa,true)}</span></div>
+        <div class="hist-row"><span class="hist-row-l">GIA</span><span class="hist-row-r gold">${f(h.gia,true)}</span></div>
+        <div class="hist-row"><span class="hist-row-l">Cash ISA</span><span class="hist-row-r">${f(h.cash,true)}</span></div>
+        <div class="hist-row"><span class="hist-row-l">Investable total</span><span class="hist-row-r green">${f(h.invest,true)}</span></div>
+        <div class="hist-row"><span class="hist-row-l">Property equity</span><span class="hist-row-r">${f(h.property,true)}</span></div>
+        <div class="hist-row"><span class="hist-row-l">Net worth</span><span class="hist-row-r gold">${f(h.nw,true)}</span></div>
+        <button class="btn-sec btn-danger" style="margin-top:12px;width:auto;padding:7px 14px;font-size:0.75rem" onclick="deleteSnapshot(${h.year})">Delete snapshot</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════ INTERACTIONS ══════
+function tab(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tn').forEach(t=>t.classList.remove('on'));
+  el('pg-'+id).classList.add('on');btn.classList.add('on');
+  curTab=id;renderTab(id);
+}
+function renderTab(id){
+  if(id==='overview')renderOverview();
+  else if(id==='income')renderIncome();
+  else if(id==='contribs')renderContribs();
+  else if(id==='projection')renderProjection();
+  else if(id==='bridge')renderBridge();
+  else if(id==='history')renderHistory();
+}
+function renderAll(){renderOverview();renderIncome();renderContribs();}
+
+function sliderChange(){}
+function toggleSW(key){
+  if(key==='swr'){S.swr=!S.swr;el('sw-swr').classList.toggle('on',S.swr);}
+  else if(key==='prop'){S.includeProp=!S.includeProp;el('sw-prop').classList.toggle('on',S.includeProp);}
+  else if(key==='salary-s'){S.salaryOn=!S.salaryOn;document.getElementById('sw-sal').classList.toggle('on',S.salaryOn);}
+  else if(key==='mort-s'){S.mortOn=!S.mortOn;document.getElementById('sw-mort-t').classList.toggle('on',S.mortOn);}
+  saveState();renderOverview();renderIncome();renderContribs();renderTab(curTab);
+}
+
+function syncSettingsUI(){}
+function recalc(){
+  S.age=parseInt(el('st-age').value)||29;
+  S.salary=parseInt(el('st-salary').value)||100000;
+  S.bonus=parseInt(el('st-bonus').value)||0;
+  S.spend=parseInt(el('st-spend').value)||2500;
+  S.pension=parseInt(el('st-pension').value)||200000;
+  S.isa=parseInt(el('st-isa').value)||72500;
+  S.gia=parseInt(el('st-gia').value)||2000;
+  S.cash=parseInt(el('st-cash').value)||3000;
+  S.property=parseInt(el('st-prop').value)||250000;
+  S.mortgage=parseInt(el('st-mort').value)||700;
+  S.growth=(parseFloat(el('st-growth').value)||7)/100;
+  S.inflation=(parseFloat(el('st-inflation').value)||2.5)/100;
+  saveState();
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tn').forEach(t=>t.classList.remove('on'));
+  el('pg-overview').classList.add('on');
+  document.querySelector('.tn').classList.add('on');
+  curTab='overview';renderAll();toast('Settings saved');
+}
+
+// ══════ INIT ══════
+syncSettingsUI();
+renderAll();
+
+// ═══════════════════════════════════════════════
+// EXTENSIONS — run after base JS is fully loaded
+// ═══════════════════════════════════════════════
+(function() {
+
+// State extensions
+if (S.salaryGrowth === undefined) S.salaryGrowth = 0.03;
+if (S.pensionC === undefined) S.pensionC = 25000;
+if (S.isaC === undefined) S.isaC = 20000;
+if (S.giaC === undefined) S.giaC = 20000;
+if (S.bonus === undefined) S.bonus = 0;
+
+// Events store
+var eventsData = lsGet('pf_events', []);
+function saveEvents() { lsSet('pf_events', eventsData); }
+
+// ── MONTHLY SIMULATION ENGINE ──
+function runSim(ov) {
+  ov = ov || {};
+  var growth    = ov.growth    !== undefined ? ov.growth    : S.growth;
+  var salGrowth = ov.salGrowth !== undefined ? ov.salGrowth : S.salaryGrowth;
+  var pensionC  = ov.pensionC  !== undefined ? ov.pensionC  : S.pensionC;
+  var isaC      = ov.isaC      !== undefined ? ov.isaC      : S.isaC;
+  var giaC      = ov.giaC      !== undefined ? ov.giaC      : S.giaC;
+  var spend     = ov.spend     !== undefined ? ov.spend     : S.spend;
+  var salary    = ov.salary    !== undefined ? ov.salary    : S.salary;
+  var bonus     = ov.bonus     !== undefined ? ov.bonus     : (S.bonus || 0);
+  var salaryOn  = ov.salaryOn  !== undefined ? ov.salaryOn  : S.salaryOn;
+  var shock     = ov.shock     || false;
+  var extraEvs  = ov.extraEvents || [];
+
+  var baseMR = Math.pow(1 + growth, 1/12) - 1;
+  var annualSpend = spend * 12;
+  var t35 = annualSpend / 0.035;
+  var t40 = annualSpend / 0.04;
+  var target = S.swr ? t35 : t40;
+
+  var pension = S.pension;
+  var bridge  = S.isa + S.gia + S.cash;
+  var curSal  = salary;
+  var mPC = pensionC / 12;
+  var mBC = (isaC + giaC) / 12;
+  var allEvs = eventsData.concat(extraEvs);
+  var fa35 = null, fa40 = null;
+  var rows = [];
+  var startAge = S.age;
+  var startYr  = new Date().getFullYear();
+  var shockAge = startAge + 3;
+
+  for (var m = 0; m < 40 * 12; m++) {
+    var curAge = startAge + m / 12;
+    var calAge = Math.floor(curAge);
+    var month  = m % 12;
+    var calYr  = startYr + Math.floor(m / 12);
+
+    // April: salary growth
+    if (month === 3 && salaryOn) curSal *= (1 + salGrowth);
+
+    // July: net bonus to bridge
+    if (month === 6 && salaryOn && bonus > 0) {
+      var bt = calcTax(curSal + bonus, pensionC);
+      var b0 = calcTax(curSal, pensionC);
+      bridge += Math.max(0, bt.takehome_annual - b0.takehome_annual);
+    }
+
+    // Birthday: trigger events
+    if (month === 5) {
+      for (var ei = 0; ei < allEvs.length; ei++) {
+        var ev = allEvs[ei];
+        if (Math.round(ev.age) === calAge) {
+          if (ev.type === 'oneoff' || ev.type === 'property') bridge = Math.max(0, bridge - (ev.amount || 0));
+          if (ev.type === 'career_break') salaryOn = false;
+          if (ev.type === 'salary_change') curSal = ev.amount;
+        }
+        if (ev.type === 'career_break' && Math.round(ev.age + (ev.duration || 1)) === calAge) {
+          salaryOn = true;
+          curSal = salary * Math.pow(1 + salGrowth, calAge - startAge);
+        }
+      }
+    }
+
+    // Child costs (age-banded monthly)
+    var childCost = 0;
+    for (var ci = 0; ci < allEvs.length; ci++) {
+      var cev = allEvs[ci];
+      if (cev.type === 'child') {
+        var ca = curAge - cev.age;
+        if (ca >= 0 && ca < 2)   childCost += 1800;
+        else if (ca < 5)  childCost += 1200;
+        else if (ca < 11) childCost += 600;
+        else if (ca < 16) childCost += 500;
+        else if (ca < 18) childCost += 300;
+      }
+    }
+    var effBC = Math.max(0, mBC - childCost);
+
+    // Shock year
+    if (shock && calAge === shockAge && month < 6) {
+      pension += pension * baseMR * 0.2;
+      bridge  += bridge  * baseMR * 0.2;
+      if (m % 12 === 11) rows.push({age: calAge+1, yr: calYr+1, pension: Math.round(pension), bridge: Math.round(bridge), total: Math.round(pension+bridge)});
+      continue;
+    }
+
+    var mr = (shock && calAge === shockAge) ? baseMR * 0.2 : baseMR;
+    pension = pension * (1 + mr) + (salaryOn ? mPC : 0);
+    bridge  = bridge  * (1 + mr) + (salaryOn ? effBC : 0);
+
+    var total = pension + bridge;
+    if (!fa35 && total >= t35) fa35 = curAge;
+    if (!fa40 && total >= t40) fa40 = curAge;
+
+    if (m % 12 === 11) rows.push({age: calAge+1, yr: calYr+1, pension: Math.round(pension), bridge: Math.round(bridge), total: Math.round(total)});
+    if (calAge >= startAge + 40) break;
+  }
+
+  fa35 = fa35 || startAge + 40;
+  fa40 = fa40 || startAge + 40;
+  var fireAge = S.swr ? fa35 : fa40;
+  return {rows: rows, t35: t35, t40: t40, target: target, fireAge: fireAge, fa35: fa35, fa40: fa40, annualSpend: annualSpend};
+}
+
+function runScenarios() {
+  return {
+    base: runSim(),
+    opt:  runSim({growth: S.growth + 0.02, salGrowth: S.salaryGrowth + 0.01}),
+    pes:  runSim({growth: S.growth - 0.02, salGrowth: S.salaryGrowth - 0.005, shock: true}),
+  };
+}
+
+function runSensitivity() {
+  var tests = [
+    {label: 'Savings rate',  up: {pensionC: S.pensionC*1.1, isaC: S.isaC*1.1, giaC: S.giaC*1.1}, dn: {pensionC: S.pensionC*0.9, isaC: S.isaC*0.9, giaC: S.giaC*0.9}},
+    {label: 'Growth rate',   up: {growth: S.growth*1.1},   dn: {growth: S.growth*0.9}},
+    {label: 'Monthly spend', up: {spend: S.spend*1.1},     dn: {spend: S.spend*0.9}},
+    {label: 'Salary',        up: {salary: S.salary*1.1},   dn: {salary: S.salary*0.9}},
+    {label: 'Salary growth', up: {salGrowth: S.salaryGrowth*1.1}, dn: {salGrowth: S.salaryGrowth*0.9}},
+  ];
+  return tests.map(function(t) {
+    var ua = runSim(t.up).fireAge, da = runSim(t.dn).fireAge;
+    return {label: t.label, impact: Math.round((da - ua) * 12), upAge: ua, dnAge: da};
+  }).sort(function(a, b) { return Math.abs(b.impact) - Math.abs(a.impact); });
+}
+
+// ── DRAWDOWN ENGINE ──
+function runDrawdown() {
+  var p = runSim();
+  var fAgeInt = Math.floor(p.fireAge);
+  var fireRow = null;
+  for (var i = 0; i < p.rows.length; i++) {
+    if (p.rows[i].age >= fAgeInt) { fireRow = p.rows[i]; break; }
+  }
+  if (!fireRow) fireRow = p.rows[p.rows.length - 1];
+
+  var annualSpend = S.spend * 12;
+  var bridge = fireRow.bridge;
+  var pension = fireRow.pension;
+  var deadAge = null;
+  var rows = [];
+  var cy = new Date().getFullYear();
+
+  for (var age = fAgeInt; age <= 90; age++) {
+    var hasSP = age >= 67;
+    var spIncome = hasSP ? 11500 : 0;
+    var inflFactor = Math.pow(1 + S.inflation, age - fAgeInt);
+    var realSpend = annualSpend * inflFactor;
+    var netWithdraw = Math.max(0, realSpend - spIncome);
+    var fromBridge = 0, fromPension = 0;
+
+    if (age < 57) {
+      fromBridge = Math.min(Math.max(0, bridge), netWithdraw);
+      bridge  = bridge  * (1 + S.growth) - fromBridge;
+      pension = pension * (1 + S.growth);
+    } else {
+      if (bridge > 0) { fromBridge = Math.min(bridge, netWithdraw * 0.35); bridge = bridge * (1 + S.growth) - fromBridge; }
+      else bridge = 0;
+      fromPension = Math.min(Math.max(0, pension), netWithdraw - fromBridge);
+      pension = pension * (1 + S.growth) - fromPension;
+    }
+
+    var total = Math.max(0, bridge) + Math.max(0, pension);
+    if (!deadAge && total <= 0) deadAge = age;
+    rows.push({age: age, yr: cy + (age - S.age), bridge: Math.max(0, Math.round(bridge)), pension: Math.max(0, Math.round(pension)), sp: hasSP, withdrawn: Math.round(netWithdraw), total: Math.max(0, Math.round(total))});
+  }
+
+  var a90 = null;
+  for (var j = 0; j < rows.length; j++) { if (rows[j].age === 90) { a90 = rows[j]; break; } }
+  return {rows: rows, deadAge: deadAge, age90val: a90 ? a90.total : 0, fireAge: p.fireAge, pensionAtFire: fireRow.pension};
+}
+
+// ── RENDERERS ──
+function renderSim() {
+  var sc = runScenarios();
+  var cy = new Date().getFullYear();
+  var bAge = Math.floor(sc.base.fireAge), oAge = Math.floor(sc.opt.fireAge), pAge = Math.floor(sc.pes.fireAge);
+
+  set('sim-date', 'Age ' + bAge);
+  set('sim-cap', 'Base · ' + (cy + bAge - S.age) + ' · Range: age ' + oAge + '–' + pAge);
+  set('sim-opt-age', oAge); set('sim-opt-yr', cy + oAge - S.age);
+  set('sim-base-age', bAge); set('sim-base-yr', cy + bAge - S.age);
+  set('sim-pes-age', pAge); set('sim-pes-yr', cy + pAge - S.age);
+
+  var spread = pAge - oAge;
+  set('sim-note', 'Uncertainty window: ' + spread + ' yr' + (spread !== 1 ? 's' : '') + '. ' +
+    (spread <= 3 ? 'Tight — robust trajectory.' : spread <= 6 ? 'Moderate — driven by returns and salary growth.' : 'Wide — sensitive to return assumptions.'));
+
+  var maxLen = Math.min(sc.base.rows.length, 20);
+  var labels = sc.base.rows.slice(0, maxLen).map(function(r) { return r.age; });
+  mkChart('simChart', 'line', {labels: labels, datasets: [
+    {data: sc.opt.rows.slice(0,maxLen).map(function(r){return r.total;}), borderColor:'#4dc994', fill:false, tension:.4, borderWidth:2, pointRadius:0},
+    {data: sc.base.rows.slice(0,maxLen).map(function(r){return r.total;}), borderColor:'#e8b55a', fill:false, tension:.4, borderWidth:2.5, pointRadius:0},
+    {data: sc.pes.rows.slice(0,maxLen).map(function(r){return r.total;}), borderColor:'#e05a5a', fill:false, tension:.4, borderWidth:2, pointRadius:0},
+    {data: sc.base.rows.slice(0,maxLen).map(function(){return sc.base.target;}), borderColor:'rgba(167,139,250,0.5)', borderDash:[4,3], borderWidth:1.5, pointRadius:0, fill:false},
+  ]}, {interaction:{intersect:false,mode:'index'}, plugins:{legend:{display:false}, tooltip:{...TT, callbacks:{title:function(i){return 'Age '+i[0].label;}, label:function(i){return ['Optimistic','Base','Pessimistic','Target'][i.datasetIndex]+': '+f(i.raw,true);}}}}});
+
+  var sens = runSensitivity();
+  var maxI = Math.abs(sens[0] ? sens[0].impact : 1) || 1;
+  el('sim-sens').innerHTML = sens.map(function(s) {
+    var bw = Math.round(Math.abs(s.impact) / maxI * 100);
+    var col = s.impact > 12 ? 'var(--green)' : s.impact > 6 ? 'var(--gold)' : 'var(--t3)';
+    return '<div style="padding:9px 0;border-bottom:1px solid var(--border)">' +
+      '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:0.79rem;color:var(--t1)">' + s.label + '</span>' +
+      '<span style="font-family:monospace;font-size:0.71rem;color:' + col + '">' + (s.impact > 0 ? '+' : '') + s.impact + ' mo</span></div>' +
+      '<div style="height:3px;background:var(--s4);border-radius:99px"><div style="height:100%;width:' + bw + '%;background:' + col + ';border-radius:99px"></div></div>' +
+      '<div style="font-size:0.64rem;color:var(--t3);margin-top:2px">Best age ' + Math.floor(s.upAge) + ' → Worst ' + Math.floor(s.dnAge) + '</div></div>';
+  }).join('');
+
+  var tbody = el('sim-tbody'); tbody.innerHTML = '';
+  sc.base.rows.slice(0, 20).forEach(function(r, i) {
+    var o = sc.opt.rows[i], p2 = sc.pes.rows[i], isFire = Math.floor(r.age) === bAge;
+    var tr = document.createElement('tr'); tr.className = isFire ? 'hi-row' : '';
+    tr.innerHTML = '<td>' + Math.floor(r.age) + '<br><span style="font-size:0.57rem;color:var(--t4)">' + r.yr + '</span></td>' +
+      '<td style="color:var(--green)">' + (o ? f(o.total,true) : '—') + '</td>' +
+      '<td>' + f(r.total,true) + '</td>' +
+      '<td style="color:#e05a5a">' + (p2 ? f(p2.total,true) : '—') + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function renderDD() {
+  var dd = runDrawdown();
+  var fAge = Math.floor(dd.fireAge);
+  set('dd-lasts', dd.deadAge ? 'Age ' + dd.deadAge : '90+');
+  set('dd-lasts-sub', dd.deadAge && dd.deadAge < 90 ? 'Portfolio depleted' : 'Still positive at 90');
+  set('dd-age90', dd.age90val > 0 ? f(dd.age90val, true) : 'Depleted');
+  el('dd-age90').className = 'mini-val ' + (dd.age90val > 200000 ? 'green' : dd.age90val > 0 ? 'gold' : 'red');
+  set('dd-pcls', f(Math.round(dd.pensionAtFire * 0.25), true));
+
+  mkChart('ddChart', 'line', {labels: dd.rows.map(function(r){return r.age;}), datasets: [
+    {label:'Bridge', data:dd.rows.map(function(r){return r.bridge;}), borderColor:'#6b9aff', backgroundColor:'rgba(74,127,232,0.07)', fill:true, tension:.3, borderWidth:2, pointRadius:0},
+    {label:'Pension', data:dd.rows.map(function(r){return r.pension;}), borderColor:'#e8b55a', backgroundColor:'rgba(200,150,60,0.05)', fill:true, tension:.3, borderWidth:2, pointRadius:0},
+    {label:'+State', data:dd.rows.map(function(r){return r.sp ? 11500 : null;}), borderColor:'#4dc994', borderDash:[3,3], borderWidth:1.5, pointRadius:0, fill:false, spanGaps:false},
+  ]}, {interaction:{intersect:false,mode:'index'}, plugins:{legend:{display:true,labels:{color:'#c8c4bc',font:{size:10},boxWidth:10,boxHeight:2,padding:10}}, tooltip:{...TT,callbacks:{title:function(i){return 'Age '+i[0].label;},label:function(i){return i.dataset.label+': '+f(i.raw,true);}}}}});
+
+  var tbody = el('dd-tbody'); tbody.innerHTML = '';
+  dd.rows.forEach(function(r) {
+    var isFire = r.age === fAge, is57 = r.age === 57, is67 = r.age === 67;
+    var tr = document.createElement('tr'); tr.className = isFire ? 'now-row' : r.total <= 0 ? 'hi-row' : '';
+    tr.innerHTML = '<td>' + r.age + '<br><span style="font-size:0.57rem;color:var(--t4)">' + r.yr + '</span></td>' +
+      '<td style="color:' + (r.bridge>0?'#6b9aff':'var(--t4)') + '">' + (r.bridge>0?f(r.bridge,true):'—') + '</td>' +
+      '<td style="color:' + (r.pension>0?'var(--gold)':'var(--t4)') + '">' + (r.pension>0?f(r.pension,true):'—') + '</td>' +
+      '<td style="color:#e05a5a">−' + f(r.withdrawn,true) + '</td>' +
+      '<td>' + (isFire?'<span class="badge">Retire</span>':is57?'<span class="badge gold">Pension</span>':is67?'<span class="badge green">+SP</span>':r.total<=0?'<span class="badge red">Gone</span>':'') + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function renderEventsTab() {
+  var list = el('ev-list');
+  if (!eventsData.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--t3);font-size:0.79rem;padding:22px 0">No events yet.</div>';
+    el('ev-impact-wrap').style.display = 'none'; return;
+  }
+  var icons = {oneoff:'🚗', career_break:'⏸️', salary_change:'💼', property:'🏠', child:'👶'};
+  var CTOTAL = 1800*24 + 1200*36 + 600*72 + 500*60 + 300*24;
+  list.innerHTML = eventsData.map(function(ev, i) {
+    var isChild = ev.type === 'child', isCareer = ev.type === 'career_break', isSal = ev.type === 'salary_change';
+    return '<div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px">' +
+      '<div style="width:28px;height:28px;border-radius:6px;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0">' + (icons[ev.type]||'📌') + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:0.81rem;font-weight:500;color:var(--t1)">' + ev.label + '</div>' +
+        '<div style="font-family:monospace;font-size:0.67rem;color:var(--t3);margin-top:2px">Age ' + ev.age + ' · ' + (new Date().getFullYear()+(ev.age-S.age)) + (isCareer?' · '+(ev.duration||1)+' yr':'') + '</div>' +
+        (isSal ? '<div style="font-family:monospace;font-size:0.71rem;margin-top:3px;color:var(--green)">New salary: '+f(ev.amount)+'</div>' : '') +
+        (ev.amount && !isChild && !isSal && !isCareer ? '<div style="font-family:monospace;font-size:0.71rem;margin-top:3px;color:#e05a5a">−'+f(ev.amount,true)+' cost</div>' : '') +
+        (isCareer ? '<div style="font-family:monospace;font-size:0.71rem;margin-top:3px;color:var(--gold)">Contributions paused '+(ev.duration||1)+' yr</div>' : '') +
+        (isChild ? '<div style="font-family:monospace;font-size:0.71rem;margin-top:3px;color:#a78bfa">~'+f(CTOTAL,true)+' over 18 yrs</div><div style="font-size:0.64rem;color:var(--t3);margin-top:2px">0–1: £1,800/mo · 2–4: £1,200/mo · 5–10: £600/mo · 11–15: £500/mo · 16–17: £300/mo</div>' : '') +
+      '</div>' +
+      '<button onclick="deleteEvent('+i+')" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:.85rem;padding:2px;flex-shrink:0">✕</button>' +
+    '</div>';
+  }).join('');
+
+  el('ev-impact-wrap').style.display = '';
+  var noEv = runSim({extraEvents:[]}), wEv = runSim();
+  var nAge = Math.floor(noEv.fireAge), wAge = Math.floor(wEv.fireAge), delta = wAge - nAge;
+  set('ev-base-ret', 'Age ' + nAge + ' (' + (new Date().getFullYear()+(nAge-S.age)) + ')');
+  set('ev-event-ret', 'Age ' + wAge + ' (' + (new Date().getFullYear()+(wAge-S.age)) + ') · ' + (delta===0?'No change':delta>0?'+'+delta+' yrs':delta+' yrs'));
+  el('ev-event-ret').className = 'row-val ' + (delta>0?'red':delta<0?'green':'');
+}
+
+function renderCompare() {
+  var altSpend   = parseInt(el('cmp-spend').value)   || S.spend;
+  var altContrib = parseInt(el('cmp-contrib').value) || 65000;
+  var altSalary  = parseInt(el('cmp-salary').value)  || S.salary;
+  var childEvs   = cmpChildOn ? [{type:'child', age:S.age+3, label:'Child'}] : [];
+  var ratio = S.pensionC / Math.max(S.pensionC + S.isaC + S.giaC, 1);
+  var altSim  = runSim({spend:altSpend, salary:altSalary, pensionC:altContrib*ratio, isaC:altContrib*(1-ratio)*0.5, giaC:altContrib*(1-ratio)*0.5, extraEvents:childEvs});
+  var baseSim = runSim();
+  var cy = new Date().getFullYear();
+  var bAge = Math.floor(baseSim.fireAge), aAge = Math.floor(altSim.fireAge), delta = aAge - bAge;
+  var col = delta > 0 ? '#e05a5a' : delta < 0 ? 'var(--green)' : 'var(--t2)';
+  var maxLen = Math.min(baseSim.rows.length, altSim.rows.length, 22);
+
+  el('cmp-output').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">' +
+      '<div class="mini-card" style="border-color:rgba(200,150,60,.2)"><div class="mini-label">Base plan</div><div class="mini-val gold">Age '+bAge+'</div><div class="mini-sub">'+(cy+bAge-S.age)+' · '+f(baseSim.target,true)+'</div></div>' +
+      '<div class="mini-card" style="border-color:rgba(139,92,246,.2);background:rgba(139,92,246,.04)"><div class="mini-label">Alternative</div><div class="mini-val" style="color:'+col+'">Age '+aAge+'</div><div class="mini-sub">'+(cy+aAge-S.age)+' · '+f(altSim.target,true)+'</div><div style="font-family:monospace;font-size:0.71rem;margin-top:4px;color:'+col+'">'+(delta>0?'+':'')+delta+' yr'+(Math.abs(delta)!==1?'s':'')+' vs base</div></div>' +
+    '</div>' +
+    '<div class="card" style="padding:12px;margin-bottom:10px"><canvas id="cmpChart" height="180"></canvas></div>' +
+    '<div class="note" style="border-left-color:'+(delta>0?'#e05a5a':delta<0?'var(--green)':'var(--border)')+'">' +
+      (delta===0?'No difference in retirement date.':(delta>0?'Alternative delays retirement by '+delta+' yr'+(delta>1?'s':''):'Alternative brings retirement forward by '+Math.abs(delta)+' yr'+(Math.abs(delta)>1?'s':''))+'.') +
+    '</div>';
+
+  mkChart('cmpChart', 'line', {
+    labels: baseSim.rows.slice(0,maxLen).map(function(r){return r.age;}),
+    datasets: [
+      {label:'Base', data:baseSim.rows.slice(0,maxLen).map(function(r){return r.total;}), borderColor:'#e8b55a', fill:false, tension:.4, borderWidth:2.5, pointRadius:0},
+      {label:'Alt', data:altSim.rows.slice(0,maxLen).map(function(r){return r.total;}), borderColor:'#a78bfa', fill:false, tension:.4, borderWidth:2, pointRadius:0},
+      {data:baseSim.rows.slice(0,maxLen).map(function(){return baseSim.target;}), borderColor:'rgba(255,255,255,.1)', borderDash:[3,3], borderWidth:1, pointRadius:0, fill:false},
+    ]
+  }, {interaction:{intersect:false,mode:'index'}, plugins:{legend:{display:false}, tooltip:{...TT,callbacks:{title:function(i){return 'Age '+i[0].label;},label:function(i){return ['Base','Alt','Target'][i.datasetIndex]+': '+f(i.raw,true);}}}}});
+}
+
+function calcReverse() {
+  var targetAge = parseInt(el('rev-age').value) || 36;
+  if (targetAge <= S.age) { el('rev-result').innerHTML = '<div class="note" style="border-left-color:#e05a5a">Target must be in the future.</div>'; return; }
+  var annualSpend = S.spend * 12;
+  var target = annualSpend / (S.swr ? 0.035 : 0.04);
+  var lo = 0, hi = 300000, result = null;
+  for (var i = 0; i < 60; i++) {
+    var mid = (lo + hi) / 2;
+    var ratio = S.pensionC / Math.max(S.pensionC + S.isaC + S.giaC, 1);
+    if (Math.floor(runSim({pensionC:mid*ratio, isaC:mid*(1-ratio)*0.5, giaC:mid*(1-ratio)*0.5}).fireAge) <= targetAge) hi = mid;
+    else lo = mid;
+    if (hi - lo < 50) { result = Math.round(hi / 100) * 100; break; }
+  }
+  if (!result) result = Math.round(hi / 100) * 100;
+  var current = S.pensionC + S.isaC + S.giaC, delta = result - current;
+  var col = delta <= 0 ? 'var(--green)' : 'var(--gold)';
+  el('rev-result').innerHTML = '<div class="card" style="margin-top:8px;padding:12px">' +
+    '<div class="row"><div class="row-l"><div class="row-title">Required contributions</div></div><div class="row-val gold">'+f(result,true)+'/yr</div></div>' +
+    '<div class="row"><div class="row-l"><div class="row-title">Your current total</div></div><div class="row-val">'+f(current,true)+'/yr</div></div>' +
+    '<div class="row" style="border:none"><div class="row-l"><div class="row-title">'+(delta>0?'Additional needed':'You are ahead by')+'</div></div><div class="row-val" style="color:'+col+'">'+(delta>0?'+':'')+f(Math.abs(delta),true)+'/yr</div></div>' +
+  '</div>';
+}
+
+// ── EVENTS MANAGEMENT ──
+var cmpChildOn = false;
+function toggleCmpChild() {
+  cmpChildOn = !cmpChildOn;
+  var e = document.getElementById('sw-cmp-child'); if (e) e.classList.toggle('on', cmpChildOn);
+}
+
+document.getElementById('ev-type').addEventListener('change', function() {
+  var t = this.value;
+  document.getElementById('ev-dur-wrap').style.display    = t === 'career_break' ? '' : 'none';
+  document.getElementById('ev-amount-wrap').style.display = t === 'child'        ? 'none' : '';
+  document.getElementById('ev-age-lbl').textContent       = t === 'child' ? 'Your age when child is born' : 'Your age when this happens';
+  document.getElementById('ev-amount-lbl').textContent    = t === 'salary_change' ? 'New annual salary £' : 'Cost £';
+});
+
+function addEvent() {
+  var type = document.getElementById('ev-type').value;
+  var age  = parseInt(document.getElementById('ev-age').value);
+  var amt  = parseFloat(document.getElementById('ev-amount').value) || 0;
+  var lbl  = document.getElementById('ev-label').value.trim();
+  var dur  = parseFloat(document.getElementById('ev-duration').value) || 1;
+  if (!age || age < S.age || age > 80) { toast('Enter a valid age'); return; }
+  eventsData.push({type:type, age:age, amount:amt, label:lbl||document.getElementById('ev-type').options[document.getElementById('ev-type').selectedIndex].text, duration:dur});
+  eventsData.sort(function(a,b){return a.age-b.age;});
+  saveEvents();
+  document.getElementById('ev-age').value = '';
+  document.getElementById('ev-amount').value = '';
+  document.getElementById('ev-label').value = '';
+  renderEventsTab(); renderOverview(); toast('Event added');
+}
+
+function deleteEvent(i) { eventsData.splice(i,1); saveEvents(); renderEventsTab(); renderOverview(); toast('Removed'); }
+
+// ── INPUTS TAB ──
+function syncInputsUI() {
+  var fields = {'st-age':S.age,'st-salary':S.salary,'st-bonus':S.bonus||0,'st-spend':S.spend,
+    'st-pensionc':S.pensionC,'st-isac':S.isaC,'st-giac':S.giaC,
+    'st-pension':S.pension,'st-isa':S.isa,'st-gia':S.gia,'st-cash':S.cash,
+    'st-prop':S.property,'st-mort':S.mortgage,
+    'st-growth':Math.round(S.growth*1000)/10,
+    'st-salgrowth':Math.round(S.salaryGrowth*1000)/10,
+    'st-inflation':Math.round(S.inflation*1000)/10};
+  Object.keys(fields).forEach(function(id) { var e=document.getElementById(id); if(e) e.value=fields[id]; });
+  var toggles = {'sw-swr':S.swr,'sw-prop':S.includeProp,'sw-sal':S.salaryOn,'sw-mort-t':S.mortOn};
+  Object.keys(toggles).forEach(function(id) { var e=document.getElementById(id); if(e) e.classList.toggle('on',toggles[id]); });
+}
+
+function applyInputs() {
+  var g = function(id, def) { var e=document.getElementById(id); return e ? (parseFloat(e.value)||def) : def; };
+  S.age       = g('st-age', 29);
+  S.salary    = g('st-salary', 100000);
+  S.bonus     = g('st-bonus', 0);
+  S.spend     = g('st-spend', 2500);
+  S.pensionC  = g('st-pensionc', 25000);
+  S.isaC      = g('st-isac', 20000);
+  S.giaC      = g('st-giac', 20000);
+  S.pension   = g('st-pension', 200000);
+  S.isa       = g('st-isa', 72500);
+  S.gia       = g('st-gia', 2000);
+  S.cash      = g('st-cash', 3000);
+  S.property  = g('st-prop', 250000);
+  S.mortgage  = g('st-mort', 700);
+  S.growth    = g('st-growth', 7) / 100;
+  S.salaryGrowth = g('st-salgrowth', 3) / 100;
+  S.inflation = g('st-inflation', 2.5) / 100;
+  saveState();
+  syncInputsUI(); // re-sync input fields with S so they reflect what was saved
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.tn').forEach(function(t){t.classList.remove('on');});
+  document.getElementById('pg-overview').classList.add('on');
+  document.querySelector('.tn').classList.add('on');
+  curTab = 'overview';
+  renderAll();
+  toast('All inputs updated ✔');
+}
+
+// ── TOGGLE EXTENSIONS ──
+var origToggleSW = toggleSW;
+toggleSW = function(key) {
+  if (key === 'sal') {
+    S.salaryOn = !S.salaryOn;
+    var e = document.getElementById('sw-sal'); if(e) e.classList.toggle('on', S.salaryOn);
+    saveState(); renderAll();
+  } else if (key === 'mort') {
+    S.mortOn = !S.mortOn;
+    var e2 = document.getElementById('sw-mort-t'); if(e2) e2.classList.toggle('on', S.mortOn);
+    saveState(); renderAll();
+  } else {
+    origToggleSW(key);
+  }
+};
+
+// ── PATCH renderTab ──
+var origRenderTab = renderTab;
+renderTab = function(id) {
+  if      (id === 'inputs')     syncInputsUI();
+  else if (id === 'simulation') renderSim();
+  else if (id === 'drawdown')   renderDD();
+  else if (id === 'events')     renderEventsTab();
+  else if (id === 'compare')    {}
+  else origRenderTab(id);
+};
+
+// ── PATCH renderOverview to use runSim ──
+var origRenderOverview = renderOverview;
+renderOverview = function() {
+  origRenderOverview();
+  // Update topbar with correct retirement age from new engine
+  var p = runSim();
+  var fAge = Math.floor(p.fireAge);
+  set('tb2', 'RETIREMENT IN ' + (fAge - S.age) + ' YRS');
+};
+
+// ── INIT new tab ──
+syncInputsUI();
+
+
+// Expose to global scope for onclick handlers
+window.applyInputs   = applyInputs;
+window.addEvent      = addEvent;
+window.deleteEvent   = deleteEvent;
+window.calcReverse   = calcReverse;
+window.renderCompare = renderCompare;
+window.toggleCmpChild= toggleCmpChild;
+window.syncInputsUI  = syncInputsUI;
+window.toggleSW      = toggleSW;  // override the outer one too
+})(); // end IIFE
+</script>
+</body>
+</html>
